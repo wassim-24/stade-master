@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Rechercher un stade{% endblock %}
+{% block content %}
+
+<section class="max-w-6xl mx-auto mt-8 px-4">
+  <h2 class="text-2xl font-semibold mb-4">
+    {% if q %}Résultats pour « {{ q }} »{% else %}Tous les stades{% endif %}
+  </h2>
+  {% if stades %}
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for stade, cover in stades %}
+        <div class="bg-white shadow rounded-lg overflow-hidden">
+          {% if cover %}
+            <img src="{{ cover }}" class="w-full h-40 object-cover"/>
+          {% else %}
+            <div class="h-40 bg-green-100 flex items-center justify-center text-green-700">Pas de photo</div>
+          {% endif %}
+          <div class="p-4">
+            <h3 class="font-semibold">{{ stade.nom }}</h3>
+            <p class="text-sm">{{ stade.adresse }}</p>
+            <a href="{% url 'stade_detail' stade.id %}" class="mt-2 inline-block bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">Voir</a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>Aucun stade trouvé.</p>
+  {% endif %}
+</section>
+{% endblock %}

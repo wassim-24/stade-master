@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Gérer mon stade{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto px-4">
+  <h1 class="text-2xl font-bold mb-4">Gérer mon stade</h1>
+  {% if stade %}
+    <div class="bg-white shadow rounded-lg p-6">
+      <h2 class="text-xl mb-2">{{ stade.nom }}</h2>
+      <dl class="grid sm:grid-cols-2 gap-4 text-sm text-gray-700">
+        <div><dt class="font-medium">Adresse</dt><dd>{{ stade.adresse }}</dd></div>
+        <div><dt class="font-medium">Capacité</dt><dd>{{ stade.get_capacite_display }}</dd></div>
+        <div><dt class="font-medium">Prix/pers.</dt><dd>{{ stade.prix_par_personne }} DT</dd></div>
+        <div><dt class="font-medium">Ouvert</dt><dd>{{ stade.est_ouvert|yesno:"Oui,Non" }}</dd></div>
+      </dl>
+    </div>
+  {% else %}
+    <form method="post" class="bg-white shadow rounded-lg p-6">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button class="mt-4 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded">Ajouter</button>
+    </form>
+  {% endif %}
+</div>
+{% endblock %}

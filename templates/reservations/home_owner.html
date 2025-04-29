@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Tableau de bord – Owner{% endblock %}
+{% block content %}
+
+
+<div class="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow text-center">
+  <h1 class="text-3xl font-bold mb-2">Hello {{ user.username }} (owner)</h1>
+  <p>Bienvenue sur votre tableau de bord ! ⚽</p>
+</div>
+{% endblock %}

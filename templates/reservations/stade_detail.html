@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ stade.nom }}{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 py-8">
+  <!-- CARROUSEL -->
+  <div class="swiper mb-6">
+    <div class="swiper-wrapper">
+      {% for img in stade.images.all %}
+        <div class="swiper-slide">
+          <img src="{{ img.image.url }}" class="w-full h-80 object-cover rounded"/>
+        </div>
+      {% empty %}
+        <div class="swiper-slide">
+          <div class="w-full h-80 bg-green-100 flex items-center justify-center text-green-700">
+            Pas d’images
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="swiper-button-prev text-green-700"></div>
+    <div class="swiper-button-next text-green-700"></div>
+  </div>
+
+  <!-- INFOS -->
+  <h1 class="text-3xl font-bold">{{ stade.nom }}</h1>
+  <p class="text-gray-600">{{ stade.adresse }}</p>
+
+  <div class="grid sm:grid-cols-3 gap-4 mt-4 text-sm">
+    <div><strong>Capacité :</strong> {{ stade.get_capacite_display }}</div>
+    <div><strong>Prix/pers :</strong> {{ stade.prix_par_personne }} DT</div>
+    <div><strong>Ouvert :</strong> {{ stade.est_ouvert|yesno:"Oui,Non" }}</div>
+  </div>
+
+  <!-- 7 JOURS -->
+  <div class="flex gap-2 overflow-x-auto my-8">
+    {% for d in days %}
+      {% with qs='?day='|add:d.isoformat %}
+        <a href="{{ qs }}"
+           class="px-3 py-1 rounded {% if d == selected_day %}bg-green-600 text-white{% else %}bg-white hover:bg-green-50{% endif %}">
+          {{ d|date:"D d M" }}
+        </a>
+      {% endwith %}
+    {% endfor %}
+  </div>
+
+  <!-- CRENEAUX -->
+  <div id="slots" class="grid grid-cols-4 sm:grid-cols-8 gap-3 mt-4">
+    {% for s in slots %}
+      <button
+        data-date="{{ selected_day|date:'Y-m-d' }}"
+        data-time="{{ s.time|time:'H:i' }}"
+        {% if s.is_past or s.is_booked %}disabled{% endif %}
+        class="slot px-2 py-1 text-sm rounded border
+               {% if s.is_past %}
+                 bg-gray-100 text-gray-400
+               {% elif s.is_booked %}
+                 bg-red-100 text-red-600
+               {% else %}
+                 bg-white hover:bg-green-50
+               {% endif %}">
+        {{ s.label }}
+      </button>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- MODAL -->
+<div id="modal" class="fixed inset-0 hidden items-center justify-center bg-black/40 backdrop-blur-sm z-50">
+  <div class="bg-white w-full max-w-sm rounded-xl p-6 space-y-6">
+    <h2 class="text-lg font-semibold text-center">Confirmer la réservation</h2>
+    <p id="slotLabel" class="text-center text-sm text-gray-600"></p>
+    <input id="confirmInput" type="text"
+           placeholder='Tape : "je confirme"'
+           class="w-full rounded-md border-gray-300 shadow-sm px-3 py-2
+                  focus:ring-green-500 focus:border-green-500 text-sm">
+    <div class="flex justify-end gap-3">
+      <button id="cancelBtn"
+              class="px-4 py-2 rounded-md bg-gray-100 hover:bg-gray-200">
+        Annuler
+      </button>
+      <button id="submitBtn" disabled
+              class="px-4 py-2 rounded-md bg-green-600 text-white disabled:opacity-40">
+        Confirmer
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  button[disabled] { pointer-events: none; }
+</style>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Swiper carrousel
+  new Swiper('.swiper', {
+    loop: true,
+    navigation: {
+      nextEl: '.swiper-button-next',
+      prevEl: '.swiper-button-prev'
+    }
+  });
+
+  // Variables
+  const modal      = document.getElementById("modal");
+  const slotLabel  = document.getElementById("slotLabel");
+  const confirmIn  = document.getElementById("confirmInput");
+  const submitBtn  = document.getElementById("submitBtn");
+  const cancelBtn  = document.getElementById("cancelBtn");
+  let   chosenDate = null;
+  let   chosenTime = null;
+
+  // ouvrir modal
+  document.querySelectorAll("#slots .slot:not([disabled])").forEach(btn => {
+    btn.addEventListener("click", () => {
+      chosenDate = btn.dataset.date;
+      chosenTime = btn.dataset.time;
+      slotLabel.textContent = `${chosenDate} – ${chosenTime}`;
+      confirmIn.value = "";
+      submitBtn.disabled = true;
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    });
+  });
+
+  // activation du bouton confirmer
+  confirmIn.addEventListener("input", () => {
+    submitBtn.disabled = (confirmIn.value.trim().toLowerCase() !== "je confirme");
+  });
+
+  // fermer modal
+  function closeModal() {
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+  }
+  cancelBtn.addEventListener("click", closeModal);
+
+  // envoyer réservation
+  submitBtn.addEventListener("click", () => {
+    submitBtn.disabled = true;
+    fetch("{% url 'reserve_slot' stade.pk %}", {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": "{{ csrf_token }}",
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: new URLSearchParams({
+        date: chosenDate,
+        time: chosenTime
+      })
+    })
+    .then(r => r.json())
+    .then(data => {
+      closeModal();
+      if (data.ok) {
+        alert("✅ Réservation confirmée !");
+        location.reload();
+      } else {
+        alert("❌ Erreur : " + data.error);
+      }
+    })
+    .catch(() => alert("❌ Erreur de connexion"))
+    .finally(() => submitBtn.disabled = false);
+  });
+</script>
+{% endblock %}

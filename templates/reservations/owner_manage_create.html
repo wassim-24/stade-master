@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% load static widget_tweaks %}
+
+{% block title %}Publier mon stade{% endblock %}
+
+{% block content %}
+<div class="bg-gradient-to-r from-green-700 via-green-600 to-green-500 py-14 text-center text-white">
+  <h1 class="text-4xl font-bold tracking-tight drop-shadow-lg">Publier mon stade</h1>
+  <p class="mt-2 opacity-90">Remplis les infos ci-dessous pour présenter ton terrain à la communauté</p>
+</div>
+
+<div class="max-w-3xl mx-auto -mt-20 pb-16 px-4 sm:px-6 lg:px-8">
+  {% if messages %}
+    <div class="space-y-3 mb-6">
+      {% for message in messages %}
+        <div class="flex items-start gap-2 rounded-lg px-4 py-3
+                    {% if message.tags == 'success' %}
+                      bg-green-50 text-green-800 ring-1 ring-green-200
+                    {% else %}
+                      bg-red-50 text-red-800 ring-1 ring-red-200
+                    {% endif %}">
+          <svg class="h-5 w-5 mt-0.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            {% if message.tags == 'success' %}
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            {% else %}
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            {% endif %}
+          </svg>
+          <p class="text-sm font-medium">{{ message }}</p>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="rounded-3xl bg-white shadow-xl p-8">
+    <form method="post" enctype="multipart/form-data" class="space-y-6">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      <div>
+        {{ form.nom.label_tag }}
+        {{ form.nom|add_class:"mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:ring-green-500 focus:border-green-500 text-sm px-3 py-2" }}
+        {{ form.nom.errors }}
+      </div>
+      <div>
+        {{ form.adresse.label_tag }}
+        {{ form.adresse|add_class:"mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:ring-green-500 focus:border-green-500 text-sm px-3 py-2" }}
+        {{ form.adresse.errors }}
+      </div>
+
+      <div class="grid sm:grid-cols-2 gap-6">
+        <div>
+          {{ form.capacite.label_tag }}
+          {{ form.capacite|add_class:"mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:ring-green-500 focus:border-green-500 text-sm px-3 py-2 bg-white" }}
+          {{ form.capacite.errors }}
+        </div>
+        <div>
+          {{ form.prix_par_personne.label_tag }}
+          {{ form.prix_par_personne|add_class:"mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:ring-green-500 focus:border-green-500 text-sm px-3 py-2" }}
+          {{ form.prix_par_personne.errors }}
+        </div>
+      </div>
+
+      <div>
+        {{ form.images.label_tag }}
+        {{ form.images }}
+        <p class="text-xs text-gray-500 mt-1">
+          Max. 5 photos – JPEG/PNG, 2 Mo chacune
+        </p>
+        {{ form.images.errors }}
+        <ul id="preview" class="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-4"></ul>
+      </div>
+
+      <button type="submit"
+        class="w-full inline-flex justify-center items-center gap-2 rounded-xl
+               bg-green-700 text-white font-semibold px-6 py-3 shadow
+               hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2
+               focus:ring-green-500 transition">
+        Enregistrer le stade
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

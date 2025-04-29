@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Accueil Propriétaire – Stade{% endblock %}
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-green-50">
+    <div class="bg-white p-8 rounded-2xl shadow-lg text-center">
+        <h1 class="text-3xl font-bold text-gray-800">
+            {{ message }}
+        </h1>
+        <p class="mt-4">
+            Bienvenue, {{ request.user.username }} !
+        </p>
+        <p class="mt-6">
+            <a href="{% url 'logout' %}" class="text-green-700 hover:text-green-600">
+                Déconnexion
+            </a>
+        </p>
+    </div>
+</div>
+{% endblock %}

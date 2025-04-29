@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% block title %}Mon profil{% endblock %}
+
+{% block content %}
+<section class="max-w-md mx-auto bg-white p-6 rounded-lg shadow mt-8">
+  <h1 class="text-2xl font-bold mb-4 text-center">Mon profil</h1>
+
+  <form method="post" class="space-y-4">
+    {% csrf_token %}
+    {{ pform.non_field_errors }}
+
+    <div class="mb-4">
+      {{ pform.username.label_tag }}
+      {{ pform.username|add_class:"border border-gray-300 rounded-lg px-4 py-2 w-full bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500" }}
+      {{ pform.username.errors }}
+    </div>
+    
+    <div class="mb-4">
+      {{ pform.email.label_tag }}
+      {{ pform.email|add_class:"border border-gray-300 rounded-lg px-4 py-2 w-full bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500" }}
+      {{ pform.email.errors }}
+    </div>
+    
+    <div class="mb-4">
+      {{ pform.phone.label_tag }}
+      {{ pform.phone|add_class:"border border-gray-300 rounded-lg px-4 py-2 w-full bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500" }}
+      {{ pform.phone.errors }}
+    </div>
+    
+    <div class="mb-6">
+      {{ pform.age.label_tag }}
+      {{ pform.age|add_class:"border border-gray-300 rounded-lg px-4 py-2 w-full bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500" }}
+      {{ pform.age.errors }}
+    </div>
+    
+
+    <button name="profile_submit"
+            class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded">
+      Enregistrer
+    </button>
+  </form>
+
+  <hr class="my-6">
+
+  <h2 class="text-xl font-semibold mb-4">Changer le mot de passe</h2>
+  <form method="post" class="space-y-4">
+    {% csrf_token %}
+    {{ pw_form.non_field_errors }}
+
+    <div class="mb-4">
+      {{ pw_form.old_password.label_tag }}
+      {{ pw_form.old_password|add_class:"border border-gray-300 rounded-lg px-4 py-2 w-full bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500" }}
+      {{ pw_form.old_password.errors }}
+    </div>
+    
+    <div class="mb-4">
+      {{ pw_form.new_password1.label_tag }}
+      {{ pw_form.new_password1|add_class:"border border-gray-300 rounded-lg px-4 py-2 w-full bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500" }}
+      {{ pw_form.new_password1.errors }}
+    </div>
+    
+    <div class="mb-6">
+      {{ pw_form.new_password2.label_tag }}
+      {{ pw_form.new_password2|add_class:"border border-gray-300 rounded-lg px-4 py-2 w-full bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500" }}
+      {{ pw_form.new_password2.errors }}
+    </div>
+    
+
+    <button name="password_submit"
+            class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded">
+      Changer
+    </button>
+  </form>
+</section>
+{% endblock %}

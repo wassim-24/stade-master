@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{% block title %}StadeFoot Loc – Location de stades de foot{% endblock %}</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Swiper -->
+  <link rel="stylesheet" href="https://unpkg.com/swiper@9/swiper-bundle.min.css">
+  <script src="https://unpkg.com/swiper@9/swiper-bundle.min.js"></script>
+</head>
+
+<!-- ⚡ Ajout ici : flex min-h-screen pour body -->
+<body class="flex flex-col min-h-screen bg-green-50 font-sans text-gray-800">
+
+  {# -------- Global messages -------- #}
+  {% if messages %}
+    <div class="max-w-4xl mx-auto mt-6 px-4 space-y-3">
+      {% for m in messages %}
+        <div class="flex items-center gap-2 p-4 rounded-lg
+                    {% if 'error' in m.tags %}bg-red-100 text-red-800
+                    {% elif 'success' in m.tags %}bg-green-100 text-green-800
+                    {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+          <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+            {# … icônes selon m.tags … #}
+          </svg>
+          <span class="font-medium">{{ m }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {# NAVBAR (overrideable) #}
+  {% block navbar %}
+    {% include "partials/navbar.html" %}
+  {% endblock %}
+
+  <!-- 👇 Correction ici : main devient flex-grow pour pousser le footer -->
+  <main class="flex-grow py-8">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer reste en bas -->
+  <footer class="bg-green-700 text-green-100 text-center py-4 mt-auto">
+    &copy; {% now "Y" %} StadeFoot Loc • Propulsé par la passion du foot ⚽
+  </footer>
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

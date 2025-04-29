@@ -1,0 +1,44 @@
+{% load static %}
+<header class="bg-green-700 text-green-100 shadow">
+  <div class="max-w-6xl mx-auto flex items-center justify-between px-6 py-3">
+    <!-- Branding -->
+    {% if request.user.is_owner %}
+      <a href="{% url 'home_owner' %}" class="flex items-center space-x-2">
+        <img src="{% static 'img/foot.gif' %}" alt="⚽" class="h-8 w-8"/>
+        <span class="font-bold text-xl">StadeFoot Owner</span>
+      </a>
+    {% else %}
+      <a href="{% url 'home_player' %}" class="flex items-center space-x-2">
+        <img src="{% static 'img/foot.gif' %}" alt="⚽" class="h-8 w-8"/>
+        <span class="font-bold text-xl">StadeFoot</span>
+      </a>
+    {% endif %}
+
+    <ul class="flex items-center space-x-6">
+      {% if request.user.is_owner %}
+        <li><a href="{% url 'owner_profile' %}" class="hover:underline">Profil</a></li>
+        <li><a href="{% url 'owner_bookings' %}" class="hover:underline">Réservations</a></li>
+        <li><a href="{% url 'owner_manage' %}" class="hover:underline">Gérer mon stade</a></li>
+      {% else %}
+        <li><a href="{% url 'player_profile' %}" class="hover:underline">Profil</a></li>
+        <li><a href="{% url 'player_bookings' %}" class="hover:underline">Mes réservations</a></li>
+      {% endif %}
+    </ul>
+
+    {% if not request.user.is_owner %}
+    <form action="{% url 'player_search' %}" method="get" class="flex items-center space-x-2">
+      <input type="text" name="q" value="{{ q|default:'' }}"
+             placeholder="Rechercher un stade…"
+             class="px-3 py-1 rounded border border-green-300
+                    focus:ring-2 focus:ring-green-500 text-gray-800"/>
+      <button type="submit"
+              class="px-4 py-1 bg-yellow-400 hover:bg-yellow-500
+                     text-gray-800 rounded font-medium">
+        Chercher
+      </button>
+    </form>
+    {% endif %}
+
+    <a href="{% url 'logout' %}" class="hover:underline">Déconnexion</a>
+  </div>
+</header>

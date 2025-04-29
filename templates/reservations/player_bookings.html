@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Mes réservations{% endblock %}
+{% block content %}
+
+<section class="max-w-6xl mx-auto mt-8 px-4">
+  <h1 class="text-2xl font-semibold mb-4">Mes réservations</h1>
+  {% if bookings %}
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for b in bookings %}
+        <div class="bg-white shadow rounded-lg overflow-hidden">
+          {% if b.cover %}
+            <img src="{{ b.cover.image.url }}" class="w-full h-40 object-cover"/>
+          {% else %}
+            <div class="h-40 bg-green-100 flex items-center justify-center text-green-700">Pas de photo</div>
+          {% endif %}
+          <div class="p-4">
+            <h3 class="font-semibold">{{ b.stade.nom }}</h3>
+            <p class="text-sm">{{ b.jour|date:"d/m/Y" }} • {{ b.heure|time:"H:i" }}</p>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-center">Aucune réservation pour l’instant.</p>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% block title %}Gérer {{ stade.nom }}{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 py-8">
+  <h1 class="text-3xl font-bold mb-4">Modifier mon stade</h1>
+  <form method="post" enctype="multipart/form-data" class="space-y-6 bg-white p-6 rounded-lg shadow">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    <div>
+      {{ form.nom.label_tag }}<br/>
+      {{ form.nom|add_class:"input focus:ring-green-500 focus:border-green-500" }}
+      {{ form.nom.errors }}
+    </div>
+
+    <div>
+      {{ form.adresse.label_tag }}<br/>
+      {{ form.adresse|add_class:"input focus:ring-green-500 focus:border-green-500" }}
+      {{ form.adresse.errors }}
+    </div>
+
+    <div class="grid sm:grid-cols-2 gap-6">
+      <div>
+        {{ form.capacite.label_tag }}
+        {{ form.capacite|add_class:"select" }}
+        {{ form.capacite.errors }}
+      </div>
+      <div>
+        {{ form.prix_par_personne.label_tag }}
+        {{ form.prix_par_personne|add_class:"input focus:ring-green-500 focus:border-green-500" }}
+        {{ form.prix_par_personne.errors }}
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2">
+      {{ form.est_ouvert }} {{ form.est_ouvert.label_tag }}
+    </div>
+
+    {{ formset.management_form }}
+    <h2 class="text-xl font-semibold mt-6 mb-2">Images du stade</h2>
+    <div class="grid sm:grid-cols-3 gap-4">
+      {% for f in formset %}
+        <div class="relative border rounded-lg p-4">
+          {# Hidden field for the form ID #}
+          {{ f.id }}
+
+          {% if f.instance.pk and f.instance.image %}
+            {# --- Display existing image --- #}
+            <img src="{{ f.instance.image.url }}" class="w-full h-32 object-cover rounded-md mb-2"/>
+            {# We need to render the hidden field for the image IF it exists to avoid clearing it #}
+            {# Check if the field is indeed hidden first #}
+             {% if f.image.field.widget.input_type == "hidden" %}
+                 {{ f.image }}
+             {% else %}
+                 {# Optionally render it differently if needed, but usually it's handled by the view/form #}
+                 {# Or just omit if the view handles existing files correctly without the field rendered #}
+             {% endif %}
+            <label class="flex items-center space-x-2 cursor-pointer">
+              {{ f.DELETE }} <span class="text-red-600">Supprimer cette image</span>
+            </label>
+          {% else %}
+            {# --- Input for adding a new image --- #}
+            <label class="image-upload-label block w-full h-32 border-dashed border-2 border-green-300 rounded-md relative cursor-pointer flex items-center justify-center text-center">
+              {# Placeholder text #}
+              <span class="placeholder-text text-green-500 px-2">+ Ajouter une photo</span>
+              {# Image preview element (initially hidden) #}
+              <img class="image-preview hidden absolute inset-0 w-full h-full object-cover rounded-md" src="#" alt="Aperçu"/>
+              {# The actual file input, rendered invisibly #}
+              {% render_field f.image class+="absolute inset-0 w-full h-full opacity-0 cursor-pointer" %}
+            </label>
+            {{ f.image.errors }} {# Display errors specific to this image field #}
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+     {{ formset.non_form_errors }} {# Display any errors related to the formset itself #}
+
+
+    <button type="submit"
+            class="w-full bg-green-700 text-white py-2 rounded hover:bg-green-800 mt-6">
+      Enregistrer les modifications
+    </button>
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Select all file inputs within the designated labels for new images
+    // Need to be specific to avoid selecting inputs for existing images if they weren't hidden
+    const fileInputs = document.querySelectorAll('.image-upload-label input[type="file"]');
+
+    fileInputs.forEach(input => {
+        input.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            // Find the closest ancestor label with the specific class
+            const label = event.target.closest('.image-upload-label');
+
+            if (label) {
+                const preview = label.querySelector('.image-preview');
+                const placeholder = label.querySelector('.placeholder-text');
+
+                if (file && preview && placeholder) {
+                    // Check if the file is an image (basic check)
+                    if (!file.type.startsWith('image/')){
+                        alert('Veuillez sélectionner un fichier image (ex: jpg, png, gif).');
+                        // Reset the input (optional, but good practice)
+                        event.target.value = ''; // Clear the selected file
+                        // Reset the preview state
+                        preview.src = "#";
+                        preview.classList.add('hidden');
+                        placeholder.classList.remove('hidden');
+                        return; // Stop execution
+                    }
+
+                    const reader = new FileReader();
+
+                    reader.onload = function(e) {
+                        // Set the src for the preview img
+                        preview.src = e.target.result;
+                        // Show the preview img
+                        preview.classList.remove('hidden');
+                        // Hide the placeholder text
+                        placeholder.classList.add('hidden');
+                    }
+
+                    // Read the file as Data URL which triggers reader.onload when done
+                    reader.readAsDataURL(file);
+
+                } else if (preview && placeholder) {
+                    // This condition handles when the user cancels file selection
+                    // or if the input is cleared. Reset to the initial state.
+                    preview.src = "#"; // Reset src
+                    preview.classList.add('hidden'); // Hide preview
+                    placeholder.classList.remove('hidden'); // Show placeholder
+                }
+            } else {
+                 // This might happen if the HTML structure changes unexpectedly
+                console.error("Could not find parent '.image-upload-label' or its children for input:", event.target);
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
